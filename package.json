@@ -1,0 +1,45 @@
+{
+  "name": "flowngin",
+  "version": "1.0.0",
+  "nodeversion": "20.12.2",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "ts-node-dev --inspect -- index.ts",
+    "client": "npm run start --prefix ..\\client",
+    "dev": "concurrently \"npm run start\" \"npm run client\"",
+    "assets": "rm -rf ./dist/src/assets && cp -r ./src/assets/ ./dist/src/assets",
+    "grunt": "tsc && npm run assets"
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@types/cookie-session": "^2.0.49",
+    "@types/dotenv": "^8.2.3",
+    "@types/express": "^5.0.3",
+    "@types/lodash": "^4.17.20",
+    "@types/moment": "^2.13.0",
+    "@types/mongoose": "^5.11.97",
+    "@types/oauth2-server": "^3.0.18",
+    "ts-node-dev": "^2.0.0"
+  },
+  "dependencies": {
+    "axios": "^1.11.0",
+    "bcryptjs": "^3.0.2",
+    "compression": "^1.8.1",
+    "cookie-session": "^2.1.1",
+    "dotenv": "^17.2.1",
+    "ejs": "^3.1.10",
+    "express": "^5.1.0",
+    "google-auth-library": "^10.2.1",
+    "joi": "^18.0.1",
+    "jsonwebtoken": "^9.0.2",
+    "lodash": "^4.17.21",
+    "moment": "^2.30.1",
+    "mongoose": "^8.17.2",
+    "oauth2-server": "^3.1.1",
+    "passport": "^0.7.0",
+    "replaceall": "^0.1.6",
+    "socket.io": "^4.8.1"
+  }
+}

@@ -1,0 +1,160 @@
+openapi: 3.0.0
+info:
+  title: APIs
+  version: 1.0.0
+  description: API documentation for mmeasenet
+  contact:
+    name: Support Team
+    email: support@mmeasenet.com
+servers:
+  - url: https://mmeasenet.glozic.dev
+paths:
+  /api/login:
+    post:
+      summary: Login to the application
+      parameters:
+        - in: header
+          name: tenant
+          required: true
+          schema:
+            type: string
+            example: "mmeasenet-dev"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                  example: admin433322@yopmail.com
+                password:
+                  type: string
+                  example: "123456"
+                isLogin:
+                  type: integer
+                  example: 2
+                request_type:
+                  type: string
+                  example: external-login
+                access_profile_id:
+                  type: string
+                  example: e63c028b-123a-4eb7-aab3-1366d18c9920
+                access_device_info:
+                  schema:
+                    type: object
+                    properties:
+                      deviceType:
+                        type: string
+                        example: Apple
+      responses:
+        200:
+          description: Login successful
+        401:
+          description: Unauthorized
+      security:
+        - ApiKeyAuth: []  # Reference to security scheme
+
+  /api/AddUser:
+    post:
+      summary: Add a new user
+      parameters:
+        - in: header
+          name: tenant
+          required: true
+          schema:
+            type: string
+            example: "mmeasenet-dev"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                  example: anupdemo1@gmail.com
+                firstname:
+                  type: string
+                  example: Anup
+                lastname:
+                  type: string
+                  example: Admin
+                password:
+                  type: string
+                  example: "123456"
+                level: 
+                  type: string 
+                  example: "6"
+      responses:
+        200:
+          description: User added successfully
+      security:
+        - ApiKeyAuth: []
+
+  /api/GetUserList:
+    post:
+      summary: Get a list of users
+      parameters:
+        - in: header
+          name: tenant
+          required: true
+          schema:
+            type: string
+            example: "mmeasenet-dev"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                PageNo:
+                  type: integer
+                  example: 1
+                PageRecord:
+                  type: integer
+                  example: 15
+                search:
+                  type: string
+                  example: ""
+                userType:
+                  type: string
+                  example: "Internal User"
+      responses:
+        200:
+          description: List of users retrieved successfully
+      security:
+        - ApiKeyAuth: []
+
+  /api/DeleteUser/{id}:
+    delete:
+      summary: Delete a user
+      parameters:
+        - in: header
+          name: tenant
+          required: true
+          schema:
+            type: string
+            example: "mmeasenet-dev"
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+          description: User ID to delete 
+      responses:
+        200:
+          description: User deleted successfully
+      security:
+        - ApiKeyAuth: [] 
+
+components:
+  securitySchemes:
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: Authorization
+
