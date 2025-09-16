@@ -7,6 +7,8 @@ import { AdminFeedController } from './routecontroller/Feed/Admin/Account/AdminF
 //-----------------------------------------------Studio(Controller)----------------------------------------------------------------------------
 import { UserStudioController } from './routecontroller/Studio/Content/User/UserStudioController';
 import { UsersFeedController } from "./routecontroller/User/UsersFeedController";
+import { StockController } from "./routecontroller/stocks/StockController";
+import { CustomerController } from "./routecontroller/customer/CustomerController";
 
 //logger
 //const logger = require("../src/services/logger");
@@ -42,7 +44,9 @@ export default class Server {
         //-----------------------------------------------Studio(Controller)--------------------------------------------------------------------------
         new UserStudioController(this.router);
         // user
-        new UsersFeedController(this.router)
+        new UsersFeedController(this.router);
+        new StockController(this.router);
+        new CustomerController(this.router);
     }
 
     public config() {
