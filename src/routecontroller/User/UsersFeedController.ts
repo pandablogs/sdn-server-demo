@@ -22,6 +22,7 @@ export class UsersFeedController {
     }
     public MAIN_API(router: Router) {
         router.post('/api/register', Auth.TenantConnection(), async (req: any, res: any, next: any) => {
+            console.log('req.body', req.body)
             try {
                 const { error, value } = registerJoiSchema.validate(req.body, {});
                 // console.log('error=========================', error)
@@ -32,9 +33,10 @@ export class UsersFeedController {
                         details: error.details.map((err: any) => err.message),
                     });
                 }
-                const { user_name, email, password, confirm_password } = value;
+                const { username, email, password, confirm_password } = value;
+                console.log('value===================================', value)
 
-                // if (!user_name || !email || !password || !confirm_password) {
+                // if (!username || !email || !password || !confirm_password) {
                 //     return res.status(400).json({ msg: "All fields are required" });
                 // }
 
@@ -43,7 +45,7 @@ export class UsersFeedController {
                 }
                 const Users = db.TenantDB(utility.getTenantDevName(utility.getHostName(req))).Users;
                 const exit_user = await Users.findOne({
-                    $or: [{ email }, { user_name }],
+                    $or: [{ email }, { username }],
                 });
 
                 if (exit_user) {
@@ -51,10 +53,9 @@ export class UsersFeedController {
                 }
                 const hashPassword = await bcrypt.hash(password, 10)
                 // newuser save
-                const newUser = await Users({ user_name, email, password: hashPassword });
+                const newUser = await Users({ username, email, password: hashPassword });
 
                 await newUser.save();
-
                 // status 200 api
                 res.status(200).json({ newUser, msg: 'User registered successfully', is_succes: true })
 
@@ -65,18 +66,18 @@ export class UsersFeedController {
 
         router.post('/api/login', async (req: any, res: any, next: any) => {
             try {
-                const { user_name, email, password } = req.body;
+                const { username, email, password } = req.body;
 
                 //    username OR email
-                if (!user_name && !email) {
+                if (!username && !email) {
                     return res.status(400).json({ msg: "Either Username/Email required" });
                 }
                 const Users = db.TenantDB(utility.getTenantDevName(utility.getHostName(req))).Users;
                 let query: any = {};
                 if (email) {
                     query.email = email;
-                } else if (user_name) {
-                    query.user_name = user_name;
+                } else if (username) {
+                    query.username = username;
                 }
 
                 const user = await Users.findOne(query);
@@ -93,7 +94,7 @@ export class UsersFeedController {
 
                 // ✅ Generate JWT
                 const token = jwt.sign(
-                    { id: user._id, email: user.email, user_name: user.user_name },
+                    { id: user._id, email: user.email, username: user.username },
                     process.env.JWT_SECRET || "yourSecretKey",
                     { expiresIn: "1h" }
                 );
@@ -103,7 +104,7 @@ export class UsersFeedController {
                     token,
                     user: {
                         id: user._id,
-                        user_name: user.user_name,
+                        username: user.username,
                         email: user.email,
                     },
                     is_succes: true
@@ -114,59 +115,6 @@ export class UsersFeedController {
                 return res.status(500).json({ msg: "Server error", error: err });
             }
         });
-
-        // router.post('/api/loginv2', async (req: any, res: any, next: any) => {
-        //     try {
-        //         const { user_name, email, password } = req.body;
-
-        //         const OuthRequest = OAuth2Server.Request;
-        //         const OuthResponse = OAuth2Server.Response;
-
-        //         let outhrequest = new OuthRequest({
-        //             method: req.method,
-        //             query: req.param,
-        //             headers: { ...req.headers, 'content-type': 'application/x-www-form-urlencoded' },
-        //             body: { ...req.body, 'grant_type': 'password', username: { email: req.body.email, } }
-        //         });
-        //         let outhresponse = new OuthResponse({ headers: {} });
-        //         const token: any = await Auth.oauthaccess(outhrequest, outhresponse)
-        //         var response_data: any = {
-        //             access_token: token.accessToken,
-        //             refresh_token: token.refreshToken,
-        //         }
-        //         console.log('response_data', response_data)
-        //         if (req.body.email) {
-        //             Auth.getCompanyByEmailDomain(req, (err, company_data) => {
-        //                 if (err) {
-        //                     res.json({ "status": false, "message": "Some thing is wrong, Please try to contact support.", "status_code": 202 });
-        //                 }
-        //                 else {
-        //                     if (company_data) {
-        //                         if (company_data.hostname != utility.getHostInfo(req).hostName) {
-        //                             var domain = PROCESS_ENV.TENANT_DOMAIN.replace("<tenatdomain>", company_data.hostname);
-        //                             var temp_data: any = {
-        //                                 user: {
-        //                                     level: "6",
-        //                                     domain: domain,
-        //                                     isView: "login",
-        //                                     email: req.body.email,
-        //                                     password: req.body.password
-        //                                 }
-        //                             }
-        //                         }
-        //                         else {
-        //                             res.json({ "status": false, "message": "OOPS! Your account does not exist.", "status_code": 202 });
-        //                         }
-        //                         res.json({ "status_code": 200, status: true, data: temp_data })
-        //                     }
-        //                 }
-        //             })
-        //         }
-        //     } catch (err) {
-        //         console.error("Login Error:", err);
-        //         return res.status(500).json({ msg: "Server error", error: err });
-        //     }
-        // });
 
         router.post("/api/auth/google", Auth.TenantConnection(), async (req, res) => {
             try {
@@ -188,7 +136,7 @@ export class UsersFeedController {
                 if (!user) {
                     user = await Users.create({
                         email,
-                        user_name: name,
+                        username: name,
                         googleId,
                         password: null,
                         is_verify: true,
@@ -196,7 +144,7 @@ export class UsersFeedController {
                 }
 
                 const token = jwt.sign(
-                    { id: user._id, email: user.email, user_name: user.user_name },
+                    { id: user._id, email: user.email, username: user.username },
                     process.env.JWT_SECRET || "yourSecretKey",
                     { expiresIn: "1h" }
                 );
@@ -204,7 +152,7 @@ export class UsersFeedController {
                 res.json({
                     msg: "Google login successful",
                     token,
-                    user: { id: user._id, email: user.email, user_name: user.user_name },
+                    user: { id: user._id, email: user.email, username: user.username },
                     is_succes: true,
                 });
 
@@ -221,7 +169,7 @@ export class UsersFeedController {
 
                 if (!user) return res.status(404).json({ msg: "User not found" });
                 const profile = {
-                    user_name: user.user_name || "",
+                    username: user.username || "",
                     email: user.email || "",
                     first_name: user.first_name || "",
                     last_name: user.last_name || "",
