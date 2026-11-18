@@ -5,9 +5,9 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "node init && ts-node-dev --inspect -- index.ts",
+    "start": "ts-node-dev --inspect -- index.ts",
     "client": "npm run start --prefix ..\\client",
-    "dev": "node init && concurrently \"npm run start\" \"npm run client\"",
+    "dev": "concurrently \"npm run start\" \"npm run client\"",
     "assets": "rm -rf ./dist/src/assets && cp -r ./src/assets/ ./dist/src/assets",
     "grunt": "tsc && npm run assets"
   },
